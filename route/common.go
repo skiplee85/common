@@ -47,7 +47,7 @@ func GetRouteHandler(routeConf []*BaseRoute, jwtToken string, isDebug bool) http
 	}
 	defaultRoute := gin.Default()
 	for _, r := range routeConf {
-		createRouteHandler(r, &defaultRoute.RouterGroup)
+		createRouteHandler(r, &defaultRoute.RouterGroup, 0)
 	}
 
 	// 跨域请求
@@ -61,26 +61,28 @@ func GetRouteHandler(routeConf []*BaseRoute, jwtToken string, isDebug bool) http
 	return c.Handler(defaultRoute)
 }
 
-func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup) {
+func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup, role int) {
 	r := *rConf
-	hs := []gin.HandlerFunc{}
 	if r.Role > 0 {
-		hs = append(hs, getRoleMiddleware(r.Role), authMiddleware)
+		role = r.Role
 	}
 	// group
 	if len(r.Child) > 0 {
 		gg := g.Group(r.Path)
 		for _, rr := range r.Child {
-			createRouteHandler(rr, gg)
+			createRouteHandler(rr, gg, role)
 		}
 	} else {
+		hs := []gin.HandlerFunc{}
 		h := func(c *gin.Context) {
 			r.Handler(&Context{Context: c})
+		}
+		if role > 0 {
+			hs = append(hs, getRoleMiddleware(role), authMiddleware)
 		}
 		hs = append(hs, h)
 		g.Handle(r.Method, r.Path, hs...)
 	}
-
 }
 
 // ValidaArgs 检查参数
