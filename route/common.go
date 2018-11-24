@@ -42,7 +42,7 @@ type BaseRoute struct {
 // GetRouteHandler 获取路由
 func GetRouteHandler(routeConf []*BaseRoute, jwtToken string, isDebug bool) http.Handler {
 	jwtSecret = jwtToken
-	if isDebug {
+	if !isDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	defaultRoute := gin.Default()
