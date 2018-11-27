@@ -96,14 +96,18 @@ func (c *Context) ValidaArgs(args interface{}) error {
 }
 
 // SendError 下发错误
-func (c *Context) SendError(code int) {
+func (c *Context) SendError(code int, msgs ...string) {
 	httpStatus := http.StatusInternalServerError
 	if code >= 1000 {
 		httpStatus = http.StatusBadRequest
 	}
+	m := errMsg[code]
+	if len(msgs) > 0 {
+		m = msgs[0]
+	}
 	c.AbortWithStatusJSON(httpStatus, &BaseResponse{
 		Code: code,
-		Msg:  errMsg[code],
+		Msg:  m,
 	})
 }
 
