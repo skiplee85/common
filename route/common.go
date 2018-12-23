@@ -17,10 +17,10 @@ const (
 
 var (
 	errMsg = map[int]string{
-		CodeOk:               "success",
-		CodeErrorRequest:     "error request",
-		CodeErrorInternal:    "server error.",
-		CodeInvalidArguments: "invalid arguments.",
+		CodeOk:                    "success",
+		CodeErrorRequest:          "error request",
+		CodeErrorInternal:         "server error.",
+		CodeErrorInvalidArguments: "invalid arguments.",
 	}
 	jwtSecret = ""
 )
@@ -37,6 +37,13 @@ type BaseRoute struct {
 	Handler func(*Context)
 	Role    int // 访问所需的最小角色，高级角色拥有低级角色的权限。0 表示没要求，未授权的用户也可以访问。
 	Child   []*BaseRoute
+}
+
+// InitErrorMsg 初始化自定义错误码
+func InitErrorMsg(msgMap map[int]string) {
+	for no, msg := range msgMap {
+		errMsg[no] = msg
+	}
 }
 
 // GetRouteHandler 获取路由
@@ -89,7 +96,7 @@ func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup, role int) {
 func (c *Context) ValidaArgs(args interface{}) error {
 	if err := c.ShouldBind(args); err != nil {
 		log.Error("invalid args. %v. url=%s", err.Error(), c.Request.URL.String())
-		c.AbortWithStatusJSON(http.StatusOK, &BaseResponse{Code: CodeInvalidArguments, Msg: err.Error()})
+		c.AbortWithStatusJSON(http.StatusOK, &BaseResponse{Code: CodeErrorInvalidArguments, Msg: err.Error()})
 		return err
 	}
 	return nil

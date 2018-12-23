@@ -2,13 +2,12 @@ package utils
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
-	"io"
 	"math"
 	"math/rand"
 	"net"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +18,19 @@ const (
 	ymdFormat  = "2006-01-02"
 	timeFormat = "2006-01-02 15:04:05"
 )
+
+var (
+	rnd    *rand.Rand
+	str    []byte
+	strLen int
+)
+
+func init() {
+	src := rand.NewSource(time.Now().UnixNano())
+	rnd = rand.New(src)
+	str = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	strLen = len(str)
+}
 
 // Time 统一输出时间
 type Time struct {
@@ -64,11 +76,25 @@ func Now() Time {
 	return Time{time.Now()}
 }
 
-// GenToken 生成随机字符串
-func GenToken(salt string) string {
-	hash := md5.New()
-	io.WriteString(hash, strconv.FormatInt(time.Now().UnixNano(), 10)+salt)
-	return fmt.Sprintf("%x", hash.Sum(nil))
+// Salt 生成随机字符串
+func Salt(l int) string {
+	bs := []byte{}
+	for i := 0; i < l; i++ {
+		bs = append(bs, str[RandInt(strLen)])
+	}
+	return string(bs)
+}
+
+// PasswordEncrypt 密码加密
+func PasswordEncrypt(password, salt string) string {
+	return MD5(MD5(password) + salt)
+}
+
+// MD5 加密
+func MD5(p string) string {
+	h := md5.New()
+	h.Write([]byte(p))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // SubIP 截取IP部分，去掉端口。
@@ -106,8 +132,6 @@ func WeekStart(t time.Time) time.Time {
 
 // RandInt 获取0-n的随机数
 func RandInt(n int) int {
-	src := rand.NewSource(time.Now().UnixNano())
-	rnd := rand.New(src)
 	return rnd.Intn(n)
 }
 

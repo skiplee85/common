@@ -11,8 +11,8 @@ const (
 	CodeErrorRequest = 400
 	// CodeErrorInternal 服务器内部错误
 	CodeErrorInternal = 500
-	// CodeInvalidArguments 非法参数
-	CodeInvalidArguments = 1000
+	// CodeErrorInvalidArguments 非法参数
+	CodeErrorInvalidArguments = 1000
 )
 
 // UserClaims 用户jwt结构
@@ -26,7 +26,7 @@ type UserClaims struct {
 type BaseResponse struct {
 	Code       int         `json:"code"`
 	Msg        string      `json:"msg,omitempty"`
-	Data       interface{} `json:"data"`
+	Data       interface{} `json:"data,omitempty"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
