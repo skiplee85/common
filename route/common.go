@@ -1,13 +1,12 @@
 package route
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors"
-
-	"github.com/skiplee85/common/log"
 )
 
 const (
@@ -95,7 +94,7 @@ func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup, role int) {
 // ValidaArgs 检查参数
 func (c *Context) ValidaArgs(args interface{}) error {
 	if err := c.ShouldBind(args); err != nil {
-		log.Error("invalid args. %v. url=%s", err.Error(), c.Request.URL.String())
+		log.Printf("invalid args. %v. url=%s", err.Error(), c.Request.URL.String())
 		c.AbortWithStatusJSON(http.StatusOK, &BaseResponse{Code: CodeErrorInvalidArguments, Msg: err.Error()})
 		return err
 	}

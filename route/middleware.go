@@ -2,19 +2,18 @@ package route
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-
-	"github.com/skiplee85/common/log"
 )
 
 func authMiddleware(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	if auth == "" {
-		log.Error("Authorization empty. %s %s", c.Request.Method, c.Request.URL)
+		log.Printf("Authorization empty. %s %s", c.Request.Method, c.Request.URL)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, &BaseResponse{Code: http.StatusUnauthorized})
 		return
 	}
@@ -46,7 +45,7 @@ func parseToken(auth string) (*UserClaims, int) {
 		return []byte(jwtSecret), nil
 	})
 	if err != nil {
-		log.Error("Parse Authorization Fail. %s %s %+v", err)
+		log.Printf("Parse Authorization Fail. %s %s %+v", err)
 		return nil, http.StatusUnauthorized
 	}
 

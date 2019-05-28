@@ -1,13 +1,12 @@
 package mongodb
 
 import (
+	"log"
 	"sync"
 	"time"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	"github.com/skiplee85/common/log"
 )
 
 // session
@@ -63,7 +62,7 @@ func Dial(url string, sessionNum int) (*DialContext, error) {
 func DialWithTimeout(url string, sessionNum int, dialTimeout time.Duration, timeout time.Duration) (*DialContext, error) {
 	if sessionNum <= 0 {
 		sessionNum = 100
-		log.Info("invalid sessionNum, reset to %v", sessionNum)
+		log.Printf("invalid sessionNum, reset to %v\n", sessionNum)
 	}
 
 	s, err := mgo.DialWithTimeout(url, dialTimeout)
@@ -95,7 +94,7 @@ func (c *DialContext) poolPing() {
 		s := <-c.sessions
 		if err := s.Ping(); err != nil {
 			s.Refresh()
-			log.Error("ping error. %s", err.Error())
+			log.Printf("ping error. %s\n", err.Error())
 		}
 		c.sessions <- s
 	}
@@ -108,7 +107,7 @@ func (c *DialContext) Close() {
 		s := <-c.sessions
 		s.Close()
 		if s.ref != 0 {
-			log.Error("session ref = %v", s.ref)
+			log.Printf("session ref = %v\n", s.ref)
 		}
 	}
 	c.Unlock()
