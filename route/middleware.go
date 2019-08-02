@@ -45,7 +45,7 @@ func parseToken(auth string) (*UserClaims, int) {
 		return []byte(jwtSecret), nil
 	})
 	if err != nil {
-		log.Printf("Parse Authorization Fail. %s %s %+v", err)
+		log.Printf("Parse Authorization Fail. %s %+v", auth, err)
 		return nil, http.StatusUnauthorized
 	}
 

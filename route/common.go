@@ -31,11 +31,12 @@ type Context struct {
 
 // BaseRoute 路由表
 type BaseRoute struct {
-	Method  string
-	Path    string
-	Handler func(*Context)
-	Role    int // 访问所需的最小角色，高级角色拥有低级角色的权限。0 表示没要求，未授权的用户也可以访问。
-	Child   []*BaseRoute
+	Method      string
+	Path        string
+	Handler     func(*Context)
+	Middlewares []gin.HandlerFunc
+	Role        int // 访问所需的最小角色，高级角色拥有低级角色的权限。0 表示没要求，未授权的用户也可以访问。
+	Child       []*BaseRoute
 }
 
 // InitErrorMsg 初始化自定义错误码
@@ -53,7 +54,7 @@ func GetRouteHandler(routeConf []*BaseRoute, jwtToken string, isDebug bool) http
 	}
 	defaultRoute := gin.Default()
 	for _, r := range routeConf {
-		createRouteHandler(r, &defaultRoute.RouterGroup, 0)
+		createRouteHandler(r, &defaultRoute.RouterGroup, 0, nil)
 	}
 
 	// 跨域请求
@@ -67,26 +68,39 @@ func GetRouteHandler(routeConf []*BaseRoute, jwtToken string, isDebug bool) http
 	return c.Handler(defaultRoute)
 }
 
-func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup, role int) {
+func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup, role int, hf []gin.HandlerFunc) {
 	r := *rConf
 	if r.Role > 0 {
 		role = r.Role
+	}
+	if len(r.Middlewares) > 0 {
+		if hf == nil {
+			hf = []gin.HandlerFunc{}
+		}
+		hf = append(hf, r.Middlewares...)
 	}
 	// group
 	if len(r.Child) > 0 {
 		gg := g.Group(r.Path)
 		for _, rr := range r.Child {
-			createRouteHandler(rr, gg, role)
+			createRouteHandler(rr, gg, role, hf)
 		}
 	} else {
 		hs := []gin.HandlerFunc{}
 		h := func(c *gin.Context) {
 			r.Handler(&Context{Context: c})
 		}
-		if role > 0 {
+		if role > 0 && jwtSecret != "" {
 			hs = append(hs, getRoleMiddleware(role), authMiddleware)
 		}
+		if len(hf) > 0 {
+			hs = append(hs, hf...)
+		}
 		hs = append(hs, h)
+		// 自定义中间件
+		if len(r.Middlewares) > 0 {
+			hs = append(hs, r.Middlewares...)
+		}
 		g.Handle(r.Method, r.Path, hs...)
 	}
 }
@@ -142,7 +156,7 @@ func (c *Context) GetClaims() *UserClaims {
 }
 
 // GetIP 获取IP
-func (c *Context) GetIP() string {
+func GetIP(c *gin.Context) string {
 	ip := ""
 	findHeader := []string{
 		"X-Forwarded-For",
