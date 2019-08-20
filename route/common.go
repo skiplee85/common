@@ -10,8 +10,9 @@ import (
 )
 
 const (
+	// KeyRole 角色
+	KeyRole       = "keyRole"
 	keyUserClaims = "keyUserClaims"
-	keyRole       = "keyRole"
 )
 
 var (
@@ -90,8 +91,11 @@ func createRouteHandler(rConf *BaseRoute, g *gin.RouterGroup, role int, hf []gin
 		h := func(c *gin.Context) {
 			r.Handler(&Context{Context: c})
 		}
-		if role > 0 && jwtSecret != "" {
-			hs = append(hs, getRoleMiddleware(role), authMiddleware)
+		if role > 0 {
+			hs = append(hs, getRoleMiddleware(role))
+		}
+		if jwtSecret != "" {
+			hs = append(hs, authMiddleware)
 		}
 		if len(hf) > 0 {
 			hs = append(hs, hf...)

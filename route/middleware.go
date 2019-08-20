@@ -20,7 +20,7 @@ func authMiddleware(c *gin.Context) {
 
 	claims, code := parseToken(auth)
 	if code == http.StatusOK {
-		role := c.GetInt(keyRole)
+		role := c.GetInt(KeyRole)
 		if role > claims.Role {
 			c.AbortWithStatusJSON(http.StatusForbidden, &BaseResponse{Code: http.StatusForbidden})
 		} else {
@@ -33,7 +33,7 @@ func authMiddleware(c *gin.Context) {
 
 func getRoleMiddleware(role int) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set(keyRole, role)
+		c.Set(KeyRole, role)
 	}
 }
 
