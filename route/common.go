@@ -2,8 +2,8 @@ package route
 
 import (
 	"log"
+	"net"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors"
@@ -163,10 +163,12 @@ func (c *Context) GetClaims() *UserClaims {
 func GetIP(c *gin.Context) string {
 	ip := ""
 	findHeader := []string{
+		"X-Real-IP",
 		"X-Forwarded-For",
 		"Proxy-Client-IP",
 		"WL-Proxy-Client-IP",
 		"HTTP_CLIENT_IP",
+		"HTTP_X_REAL_IP",
 		"HTTP_X_FORWARDED_FOR",
 	}
 	for _, h := range findHeader {
@@ -176,8 +178,7 @@ func GetIP(c *gin.Context) string {
 		}
 	}
 	if ip == "" {
-		ips := strings.Split(c.Request.RemoteAddr, ":")
-		ip = ips[0]
+		ip, _, _ = net.SplitHostPort(c.Request.RemoteAddr)
 	}
 	return ip
 }
