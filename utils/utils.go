@@ -154,20 +154,22 @@ func IsBingo(x, p int) bool {
 
 // WeightPick 权重选择
 func WeightPick(ws []int) int {
-	var weight, maxIdx, maxWeight int
-	for idx, w := range ws {
+	var weight int
+	gap := [][]int{}
+	for _, w := range ws {
+		gap = append(gap, []int{weight, weight + w})
 		weight += w
-		if w > maxWeight {
-			maxWeight = w
-			maxIdx = idx
-		}
 	}
-	for idx, w := range ws {
-		if IsBingo(w, weight) {
+	if weight == 0 {
+		return 0
+	}
+	b := RandInt(weight)
+	for idx, g := range gap {
+		if g[0] <= b && b < g[1] {
 			return idx
 		}
 	}
-	return maxIdx
+	return 0
 }
 
 // FillStruct 将 data 的值填充到 result 对应的字段。
