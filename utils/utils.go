@@ -137,6 +137,9 @@ func WeekStart(t time.Time) time.Time {
 
 // RandInt 获取0-n的随机数
 func RandInt(n int) int {
+	if n == 0 {
+		return 0
+	}
 	return rnd.Intn(n)
 }
 
