@@ -140,6 +140,18 @@ func RandInt(n int) int {
 	return rnd.Intn(n)
 }
 
+// IsBingo 概率是否命中
+func IsBingo(x, p int) bool {
+	if p == 0 {
+		return false
+	}
+	x = x % p
+	if x > RandInt(p) {
+		return true
+	}
+	return false
+}
+
 // FillStruct 将 data 的值填充到 result 对应的字段。
 func FillStruct(data map[string]interface{}, result interface{}) {
 	t := reflect.ValueOf(result).Elem()
@@ -192,6 +204,7 @@ func EarthDistance(lat1, lng1, lat2, lng2 float64) float64 {
 }
 
 var inc = 0
+
 // GenOrderNumber 生成订单
 func GenOrderNumber() string {
 	inc++
