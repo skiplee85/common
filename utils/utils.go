@@ -152,6 +152,24 @@ func IsBingo(x, p int) bool {
 	return false
 }
 
+// WeightPick 权重选择
+func WeightPick(ws []int) int {
+	var weight, maxIdx, maxWeight int
+	for idx, w := range ws {
+		weight += w
+		if w > maxWeight {
+			maxWeight = w
+			maxIdx = idx
+		}
+	}
+	for idx, w := range ws {
+		if IsBingo(w, weight) {
+			return idx
+		}
+	}
+	return maxIdx
+}
+
 // FillStruct 将 data 的值填充到 result 对应的字段。
 func FillStruct(data map[string]interface{}, result interface{}) {
 	t := reflect.ValueOf(result).Elem()
