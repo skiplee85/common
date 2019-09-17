@@ -148,7 +148,6 @@ func IsBingo(x, p int) bool {
 	if p == 0 {
 		return false
 	}
-	x = x % p
 	if x > RandInt(p) {
 		return true
 	}
