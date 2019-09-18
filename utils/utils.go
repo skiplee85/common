@@ -14,6 +14,7 @@ import (
 	"net"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -25,9 +26,10 @@ const (
 )
 
 var (
-	rnd    *rand.Rand
-	str    []byte
-	strLen int
+	rnd     *rand.Rand
+	rndLock sync.Mutex
+	str     []byte
+	strLen  int
 )
 
 func init() {
@@ -140,6 +142,8 @@ func RandInt(n int) int {
 	if n == 0 {
 		return 0
 	}
+	rndLock.Lock()
+	defer rndLock.Unlock()
 	return rnd.Intn(n)
 }
 
