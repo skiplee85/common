@@ -137,6 +137,12 @@ func WeekStart(t time.Time) time.Time {
 	return t.AddDate(0, 0, offset)
 }
 
+// ResetRnd 重置随机数
+func ResetRnd() {
+	src := rand.NewSource(time.Now().UnixNano())
+	rnd = rand.New(src)
+}
+
 // RandInt 获取0-n的随机数
 func RandInt(n int) int {
 	if n == 0 {
