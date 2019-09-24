@@ -248,6 +248,47 @@ func GenOrderNumber() string {
 	return fmt.Sprintf("%s%d%d", t.Format("20060102150405"), unix, inc)
 }
 
+// Permutation 全排列算法
+func Permutation(l int, f func([]int) bool) [][]int {
+	// 排列列表
+	src := []int{}
+	for i := 0; i < l; i++ {
+		src = append(src, i)
+	}
+	if len(src) <= 1 {
+		return [][]int{src}
+	}
+	ret, _ := doPermutation(src, 0, len(src)-1, f)
+	return ret
+}
+
+func doPermutation(src []int, k, m int, f func([]int) bool) ([][]int, bool) {
+	ret := [][]int{}
+	new := append([]int{}, src...)
+	var i int
+	if k > m {
+		a := []int{}
+		for i = 0; i <= m; i++ {
+			a = append(a, src[i])
+		}
+		ret = append(ret, a)
+		if f != nil && !f(a) {
+			return ret, false
+		}
+	} else {
+		for i = k; i <= m; i++ {
+			new[k], new[i] = new[i], new[k]
+			tmp, b := doPermutation(new, k+1, m, f)
+			ret = append(ret, tmp...)
+			if !b {
+				return ret, false
+			}
+			new[k], new[i] = new[i], new[k]
+		}
+	}
+	return ret, true
+}
+
 // =================== CBC ======================
 
 // AesEncryptCBC 加密
