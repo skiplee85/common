@@ -153,6 +153,16 @@ func RandInt(n int) int {
 	return rnd.Intn(n)
 }
 
+// RandInt64 获取0-n的随机数
+func RandInt64(n int64) int64 {
+	if n == 0 {
+		return 0
+	}
+	rndLock.Lock()
+	defer rndLock.Unlock()
+	return rnd.Int63n(n)
+}
+
 // IsBingo 概率是否命中
 func IsBingo(x, p int) bool {
 	if p == 0 {
